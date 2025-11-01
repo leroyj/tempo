@@ -1,0 +1,51 @@
+.export-page {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.export-page h2 {
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.export-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 500px;
+  margin-bottom: 2rem;
+}
+
+.export-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.export-form label {
+  font-weight: 500;
+  color: #333;
+}
+
+.export-form input[type="date"] {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.export-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.export-info p {
+  margin: 0.5rem 0;
+}
+
