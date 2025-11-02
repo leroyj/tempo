@@ -66,13 +66,45 @@ Un utilisateur admin est créé automatiquement :
 - Email: `admin@tempo.com`
 - Mot de passe: `admin123`
 
+## Déploiement avec Docker
+
+### Production
+
+```bash
+docker-compose up -d
+```
+
+Le backend sera accessible sur `http://localhost:3000`
+
+### Développement
+
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Build manuel de l'image
+
+```bash
+cd backend
+docker build -t tempo-backend:latest .
+docker run -p 3000:3000 \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/tempo_db \
+  -e JWT_SECRET=your-secret-key \
+  tempo-backend:latest
+```
+
 ## Structure du projet
 
 ```
 tempo/
 ├── backend/          # API NestJS
+│   ├── Dockerfile    # Dockerfile production
+│   ├── Dockerfile.dev # Dockerfile développement
+│   └── .dockerignore
 ├── frontend/          # Application React
-└── db/              # Scripts SQL et migrations
+├── db/              # Scripts SQL et migrations
+├── docker-compose.yml      # Compose production
+└── docker-compose.dev.yml   # Compose développement
 ```
 
 ## Documentation API

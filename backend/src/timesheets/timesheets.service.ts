@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Timesheet, TimesheetStatus } from './entities/timesheet.entity';
-import { TimesheetEntry } from './timesheet-entry.entity';
+import { TimesheetEntry } from './entities/timesheet-entry.entity';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
 import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
 import { HolidaysService } from '../holidays/holidays.service';
@@ -110,7 +110,16 @@ export class TimesheetsService {
     await this.entriesRepository.save(entries);
 
     // Vérifier le total
-    const reloaded = await this.findOne(savedTimesheet.id);
+    // Recharger la feuille avec les entrées
+    const reloaded = await this.timesheetsRepository.findOne({
+      where: { id: savedTimesheet.id },
+      relations: ['entries'],
+    });
+    
+    if (!reloaded) {
+      throw new NotFoundException('Feuille de temps non trouvée après création');
+    }
+    
     await this.validateTotalDays(reloaded.entries);
 
     // Mettre à jour le total de la feuille

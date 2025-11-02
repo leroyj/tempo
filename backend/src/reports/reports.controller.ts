@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards, Res, ParseDatePipe } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ReportsService } from './reports.service';
