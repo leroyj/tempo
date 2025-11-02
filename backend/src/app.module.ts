@@ -28,7 +28,8 @@ import { seedAdmin } from './database/seed';
       type: 'postgres',
       url: process.env.DATABASE_URL,
       entities: [User, Category, UserCategory, Timesheet, TimesheetEntry, PublicHoliday],
-      synchronize: process.env.NODE_ENV === 'development', // À désactiver en production
+      synchronize: false, // Désactivé pour éviter les conflits avec le schéma SQL
+      // Le schéma est géré par schema.sql dans /docker-entrypoint-initdb.d/
       logging: process.env.NODE_ENV === 'development',
     }),
     AuthModule,

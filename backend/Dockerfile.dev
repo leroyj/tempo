@@ -12,10 +12,9 @@ COPY tsconfig.json ./
 COPY nest-cli.json ./
 
 # Installer toutes les dépendances (dev + prod)
-# Utiliser npm ci pour une installation reproductible
-RUN npm ci || npm install
+RUN npm install --legacy-peer-deps
 
-# Copier le reste du code
+# Copier le reste du code (après installation pour meilleur cache Docker)
 COPY . .
 
 # Exposer le port

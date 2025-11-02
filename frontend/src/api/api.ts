@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+// URL de l'API : depuis le navigateur, toujours utiliser localhost (port exposé)
+// Le proxy dans package.json gère la communication interne Docker
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3030';
 
 const api = axios.create({
   baseURL: API_URL,

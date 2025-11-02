@@ -82,6 +82,13 @@ Le backend sera accessible sur `http://localhost:3000`
 docker-compose -f docker-compose.dev.yml up
 ```
 
+Cela démarre :
+- **PostgreSQL** sur le port `3432` (hôte)
+- **Backend** sur le port `3030` (API REST)
+- **Frontend** sur le port `3080` (interface web)
+
+Le frontend et le backend tournent en mode **watch** (rechargement automatique lors des modifications).
+
 ### Build manuel de l'image
 
 ```bash

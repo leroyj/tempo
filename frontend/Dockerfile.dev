@@ -1,0 +1,23 @@
+# Dockerfile pour le développement du frontend
+FROM node:24-alpine
+
+WORKDIR /app
+
+# Installer les dépendances système si nécessaire
+RUN apk add --no-cache python3 make g++
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer toutes les dépendances
+RUN npm install
+
+# Copier le reste du code
+COPY . .
+
+# Exposer le port
+EXPOSE 3001
+
+# Démarrer en mode watch
+CMD ["npm", "start"]
+
