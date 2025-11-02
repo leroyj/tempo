@@ -61,11 +61,16 @@ export class UsersService {
     // Si un nouveau mot de passe est fourni, le hasher
     if (updateUserDto.password) {
       const saltRounds = 10;
-      updateUserDto.passwordHash = await bcrypt.hash(updateUserDto.password, saltRounds);
-      delete updateUserDto.password;
+      const passwordHash = await bcrypt.hash(updateUserDto.password, saltRounds);
+      // Créer un objet sans le mot de passe en clair
+      const { password, ...updateData } = updateUserDto;
+      Object.assign(user, updateData, { passwordHash });
+    } else {
+      // Pas de changement de mot de passe
+      const { password, ...updateData } = updateUserDto;
+      Object.assign(user, updateData);
     }
 
-    Object.assign(user, updateUserDto);
     return await this.usersRepository.save(user);
   }
 

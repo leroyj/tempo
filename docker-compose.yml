@@ -7,9 +7,9 @@ services:
     environment:
       POSTGRES_DB: tempo_db
       POSTGRES_USER: tempo_user
-      POSTGRES_PASSWORD: tempo_password
+      POSTGRES_PASSWORD: lapincompris
     ports:
-      - "5432:5432"
+      - "3432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
@@ -26,7 +26,7 @@ services:
     container_name: tempo-backend
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://tempo_user:tempo_password@postgres:5432/tempo_db
+      DATABASE_URL: postgresql://tempo_user:lapincompris@postgres:5432/tempo_db
       JWT_SECRET: change-this-secret-in-production-min-32-characters
       PORT: 3000
       FRONTEND_URL: http://localhost:3001

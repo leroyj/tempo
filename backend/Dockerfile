@@ -37,7 +37,7 @@ RUN addgroup -g 1001 -S nodejs && \
 USER nestjs
 
 # Exposer le port
-EXPOSE 3000
+EXPOSE 3030
 
 # Variables d'environnement par défaut
 ENV NODE_ENV=production
