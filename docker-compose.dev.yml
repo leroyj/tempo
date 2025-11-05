@@ -19,6 +19,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - metanet1
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8088:8080
+    networks:
+      - metanet1
 
   backend:
     build:
@@ -41,6 +51,8 @@ services:
         condition: service_healthy
     restart: unless-stopped
     command: npm run start:dev
+    networks:
+      - metanet1
 
   frontend:
     build:
@@ -49,8 +61,10 @@ services:
     container_name: tempo-frontend-dev
     environment:
       REACT_APP_API_URL: http://localhost:3030
+      HOST: 0.0.0.0
       CHOKIDAR_USEPOLLING: true
       WATCHPACK_POLLING: true
+      DANGEROUSLY_DISABLE_HOST_CHECK: true
     ports:
       - "3080:3001"
     volumes:
@@ -62,7 +76,13 @@ services:
     restart: unless-stopped
     stdin_open: true
     tty: true
+    networks:
+      - metanet1
 
 volumes:
   postgres_data_dev:
+
+networks:
+  metanet1:
+    driver: bridge
 

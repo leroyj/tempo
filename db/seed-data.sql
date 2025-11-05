@@ -15,7 +15,7 @@ BEGIN
         INSERT INTO users (email, password_hash, first_name, last_name, role, is_active)
         VALUES (
             'admin@tempo.com',
-            '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            '$2y$10$dJDyKwyAXrMXkxz9CZTEKe9oK84jfxZB/C.b.Bt.F962.CM0nhSVW',
             'Admin',
             'Tempo',
             'ADMIN',
@@ -27,7 +27,7 @@ BEGIN
         INSERT INTO users (email, password_hash, first_name, last_name, role, is_active)
         VALUES (
             'user1@tempo.com',
-            '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            '$2y$10$dJDyKwyAXrMXkxz9CZTEKe9oK84jfxZB/C.b.Bt.F962.CM0nhSVW',
             'Jean',
             'Dupont',
             'USER',
@@ -39,7 +39,7 @@ BEGIN
         INSERT INTO users (email, password_hash, first_name, last_name, role, is_active)
         VALUES (
             'manager1@tempo.com',
-            '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            '$2y$10$dJDyKwyAXrMXkxz9CZTEKe9oK84jfxZB/C.b.Bt.F962.CM0nhSVW',
             'Marie',
             'Martin',
             'MANAGER',

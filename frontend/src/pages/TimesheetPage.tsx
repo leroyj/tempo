@@ -124,6 +124,10 @@ const TimesheetPage: React.FC = () => {
     }
 
     const updated = { ...timesheet! };
+      // Vérification que entries existe
+    if (!updated.entries) {
+      updated.entries = [];
+    }
     let entry = updated.entries.find((e) => e.categoryId === categoryId);
 
     if (!entry) {
@@ -195,13 +199,13 @@ const TimesheetPage: React.FC = () => {
   };
 
   const getEntryValue = (categoryId: string, day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday'): number => {
-    if (!timesheet) return 0;
+    if (!timesheet || !timesheet.entries) return 0;
     const entry = timesheet.entries.find((e) => e.categoryId === categoryId);
-    return entry ? entry[day] : 0;
+    return entry ? parseFloat(entry[day]) || 0 : 0;
   };
 
   const getTotalForDay = (day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday'): number => {
-    if (!timesheet) return 0;
+    if (!timesheet || !timesheet.entries) return 0;
     return timesheet.entries.reduce((sum, e) => sum + e[day], 0);
   };
 
@@ -274,20 +278,28 @@ const TimesheetPage: React.FC = () => {
                         max="1"
                         step="0.25"
                         value={getEntryValue(category.id, day)}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Convertir la virgule en point si nécessaire
+                          const normalizedValue = value.replace(',', '.');
                           handleEntryChange(category.id, day, parseFloat(e.target.value) || 0)
-                        }
+                        }}
                         disabled={timesheet?.status === 'APPROVED'}
                         className="day-input"
                       />
                     </td>
                   ))}
-                  <td className="total-cell">
-                    {timesheet?.entries
-                      .find((e) => e.categoryId === category.id)
-                      ?.total.toFixed(2) || '0.00'}
-                  </td>
-                </tr>
+              <td className="total-cell">
+                {timesheet && timesheet.entries 
+                  ? (() => {
+                      const entry = timesheet.entries.find((e) => e.categoryId === category.id);
+                      console.log('entry : ', entry);
+                      return entry ? entry.total.toFixed(2) : '0.00';
+                    })()
+                  : '0.00'
+                }
+                </td>
+                 </tr>
               ))}
             <tr className="totals-row">
               <td><strong>Total</strong></td>

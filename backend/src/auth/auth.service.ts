@@ -20,10 +20,26 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.passwordHash);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(loginDto.password, saltRounds);
+    // Ajoute un log pour voir les valeurs exactes
+    console.log('Mot de passe entrant:', loginDto.password);
+    console.log('Hash stocké:', user.passwordHash);
+    console.log('Hash généré:', hashedPassword);
+    const ishashValid = await bcrypt.compare(String(loginDto.password), String(hashedPassword));
+    console.log('Résultat bcrypt.compare recalculé:', ishashValid);
+
+    const isPasswordValid = await bcrypt.compare(String(loginDto.password), String(user.passwordHash));
+    console.log('Résultat bcrypt.compare stocké:', isPasswordValid);
+// Ajoute ce log pour voir les caractères exacts
+    console.log('Hash généré (bytes):', [...hashedPassword].map(c => c.charCodeAt(0)));
+    console.log('Hash stocké (bytes):', [...user.passwordHash].map(c => c.charCodeAt(0)));    //const isPasswordValid = true; //await bcrypt.compare(loginDto.password, user.passwordHash);
+// Assure-toi que les deux sont bien des strings
+    console.log('Type Hash généré:', typeof hashedPassword);
+    console.log('Type Hash stocké:', typeof user.passwordHash);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Identifiants invalides');
+      throw new UnauthorizedException('mot de passe invalide : '+String(loginDto.password)+' '+String(user.passwordHash));
     }
 
     const payload = {

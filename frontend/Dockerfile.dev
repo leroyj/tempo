@@ -15,9 +15,14 @@ RUN npm install
 # Copier le reste du code
 COPY . .
 
+# Définir les variables d'environnement
+ENV HOST=0.0.0.0
+ENV PORT=3001
+
 # Exposer le port
 EXPOSE 3001
 
 # Démarrer en mode watch
+# HOST=0.0.0.0 permet d'accepter les connexions depuis l'extérieur du conteneur
 CMD ["npm", "start"]
 
