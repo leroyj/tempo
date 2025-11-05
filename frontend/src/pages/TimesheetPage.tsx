@@ -81,7 +81,28 @@ const TimesheetPage: React.FC = () => {
     try {
       const weekStart = formatWeekStart(currentWeek);
       const response = await api.get(`/timesheets/week?weekStartDate=${weekStart}`);
-      setTimesheet(response.data);
+      // Normaliser les valeurs reçues (string "0.25" -> number 0.25, gérer virgule)
+      const normalize = (v: any) => {
+        if (v === null || v === undefined || v === '') return 0;
+        if (typeof v === 'number') return v;
+        if (typeof v === 'string') return parseFloat(v.replace(',', '.')) || 0;
+        return Number(v) || 0;
+      };
+
+      const tsData: any = response.data;
+      if (tsData?.entries && Array.isArray(tsData.entries)) {
+        tsData.entries = tsData.entries.map((e: any) => ({
+          ...e,
+          monday: normalize(e.monday),
+          tuesday: normalize(e.tuesday),
+          wednesday: normalize(e.wednesday),
+          thursday: normalize(e.thursday),
+          friday: normalize(e.friday),
+          total: normalize(e.total),
+        }));
+        tsData.totalDays = tsData.entries.reduce((sum: number, en: any) => sum + Number(en.total || 0), 0);
+      }
+      setTimesheet(tsData);
     } catch (err: any) {
       if (err.response?.status === 404) {
         setTimesheet(null);
@@ -110,24 +131,22 @@ const TimesheetPage: React.FC = () => {
   const handleEntryChange = (
     categoryId: string,
     day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday',
-    value: number
+    value: string | number
   ) => {
-    if (!timesheet) {
-      const newTimesheet: Timesheet = {
-        userId: user!.id,
-        weekStartDate: formatWeekStart(currentWeek),
-        status: 'DRAFT',
-        totalDays: 0,
-        entries: [],
-      };
-      setTimesheet(newTimesheet);
-    }
-
-    const updated = { ...timesheet! };
-      // Vérification que entries existe
+    // Construire un timesheet "updated" en mémoire (ne pas se fier à setState précédent)
+    const updated: Timesheet = timesheet
+      ? { ...timesheet }
+      : {
+          userId: user!.id,
+          weekStartDate: formatWeekStart(currentWeek),
+          status: 'DRAFT',
+          totalDays: 0,
+          entries: [],
+        };
     if (!updated.entries) {
       updated.entries = [];
     }
+
     let entry = updated.entries.find((e) => e.categoryId === categoryId);
 
     if (!entry) {
@@ -143,10 +162,15 @@ const TimesheetPage: React.FC = () => {
       updated.entries.push(entry);
     }
 
-    entry[day] = value;
-    entry.total = entry.monday + entry.tuesday + entry.wednesday + entry.thursday + entry.friday;
+    // Conversion de la valeur en nombre
+    const numValue = typeof value === 'string' 
+      ? parseFloat(value.replace(',', '.')) 
+      : value;
+    
+    entry[day] = isNaN(numValue) ? 0 : numValue;
+    entry.total = Number(entry.monday) + Number(entry.tuesday) + Number(entry.wednesday) + Number(entry.thursday) + Number(entry.friday);
 
-    const totalDays = updated.entries.reduce((sum, e) => sum + e.total, 0);
+    const totalDays = updated.entries.reduce((sum, e) => sum + Number(e.total), 0);
     updated.totalDays = totalDays;
 
     setTimesheet(updated);
@@ -199,14 +223,18 @@ const TimesheetPage: React.FC = () => {
   };
 
   const getEntryValue = (categoryId: string, day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday'): number => {
-    if (!timesheet || !timesheet.entries) return 0;
+    if (!timesheet?.entries) return 0;
     const entry = timesheet.entries.find((e) => e.categoryId === categoryId);
-    return entry ? parseFloat(entry[day]) || 0 : 0;
+    if (!entry) return 0;
+    const raw = entry[day];
+    if (typeof raw === 'number') return raw;
+    if (raw === null || raw === undefined || raw === '') return 0;
+    return parseFloat(String(raw).replace(',', '.')) || 0;
   };
 
   const getTotalForDay = (day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday'): number => {
     if (!timesheet || !timesheet.entries) return 0;
-    return timesheet.entries.reduce((sum, e) => sum + e[day], 0);
+    return timesheet.entries.reduce((sum, e) => sum + Number(e[day] ?? 0), 0);
   };
 
   const totalDays = timesheet ? timesheet.totalDays : 0;
@@ -280,9 +308,12 @@ const TimesheetPage: React.FC = () => {
                         value={getEntryValue(category.id, day)}
                         onChange={(e) => {
                           const value = e.target.value;
-                          // Convertir la virgule en point si nécessaire
-                          const normalizedValue = value.replace(',', '.');
-                          handleEntryChange(category.id, day, parseFloat(e.target.value) || 0)
+                          handleEntryChange(category.id, day, value);
+                        }}
+                        onBlur={(e) => {
+                          // Force la conversion en nombre lors de la perte de focus
+                          const value = parseFloat(e.target.value.replace(',', '.')) || 0;
+                          handleEntryChange(category.id, day, value);
                         }}
                         disabled={timesheet?.status === 'APPROVED'}
                         className="day-input"
@@ -290,11 +321,11 @@ const TimesheetPage: React.FC = () => {
                     </td>
                   ))}
               <td className="total-cell">
-                {timesheet && timesheet.entries 
+                {timesheet?.entries 
                   ? (() => {
                       const entry = timesheet.entries.find((e) => e.categoryId === category.id);
-                      console.log('entry : ', entry);
-                      return entry ? entry.total.toFixed(2) : '0.00';
+                      const total = entry ? Number(entry.total) : 0;
+                      return total.toFixed(2);
                     })()
                   : '0.00'
                 }
