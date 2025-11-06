@@ -41,15 +41,29 @@ export class ReportsService {
 
     const rows: CsvRow[] = [];
 
+    // helper pour s'assurer d'avoir un Date
+    const toDate = (v: any): Date => {
+      if (v instanceof Date) return v;
+      // gère chaînes postgres comme "2025-11-02 00:34:08.828016" ou "2025-11-02"
+      // remplacer espace par 'T' si besoin pour compatibilité ISO
+      if (typeof v === 'string') {
+        const s = v.includes('T') ? v : v.replace(' ', 'T');
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) return d;
+      }
+      return new Date(v);
+    };
+
     for (const timesheet of timesheets) {
-      const weekIso = this.getWeekISO(timesheet.weekStartDate);
+      const weekStartDate = toDate(timesheet.weekStartDate);
+      const weekIso = this.getWeekISO(weekStartDate);
 
       for (const entry of timesheet.entries) {
         rows.push({
           user_id: timesheet.user.id,
           user_nom: `${timesheet.user.firstName} ${timesheet.user.lastName}`,
           semaine_iso: weekIso,
-          date_lundi_semaine: timesheet.weekStartDate.toISOString().split('T')[0],
+          date_lundi_semaine: weekStartDate.toISOString().split('T')[0],
           categorie_code: entry.category.code,
           categorie_libelle: entry.category.label,
           sous_activite: entry.subactivity || '',
@@ -107,8 +121,8 @@ export class ReportsService {
     return csvRows.join('\n');
   }
 
-  private getWeekISO(date: Date): string {
-    const d = new Date(date);
+  private getWeekISO(date: Date | string): string {
+    const d = typeof date === 'string' ? new Date(date.replace(' ', 'T')) : new Date(date);
     d.setHours(0, 0, 0, 0);
     d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
     const week1 = new Date(d.getFullYear(), 0, 4);
