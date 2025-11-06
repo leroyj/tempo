@@ -81,7 +81,7 @@ const TimesheetPage: React.FC = () => {
     try {
       const weekStart = formatWeekStart(currentWeek);
       const response = await api.get(`/timesheets/week?weekStartDate=${weekStart}`);
-      // Normaliser les valeurs reçues (string "0.25" -> number 0.25, gérer virgule)
+      // Normaliser les valeurs reçues
       const normalize = (v: any) => {
         if (v === null || v === undefined || v === '') return 0;
         if (typeof v === 'number') return v;
@@ -105,9 +105,19 @@ const TimesheetPage: React.FC = () => {
       setTimesheet(tsData);
     } catch (err: any) {
       if (err.response?.status === 404) {
-        setTimesheet(null);
+        // Initialiser une nouvelle feuille vide au lieu de null
+        const emptyTimesheet: Timesheet = {
+          userId: user!.id,
+          weekStartDate: formatWeekStart(currentWeek),
+          status: 'DRAFT',
+          totalDays: 0,
+          entries: [] // Les entrées seront créées à la demande lors de la saisie
+        };
+        setTimesheet(emptyTimesheet);
+        setError(''); // Effacer l'erreur puisque c'est normal d'avoir une nouvelle feuille
       } else {
         setError('Erreur lors du chargement de la feuille de temps');
+        setTimesheet(null);
       }
     } finally {
       setLoading(false);
